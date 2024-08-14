@@ -1,5 +1,5 @@
 import streamlit as st
-from Agent import *
+from agent_admin import *
 from user_profile import *
 from langchain_community.chat_message_histories import ChatMessageHistory
 from langchain_core.chat_history import BaseChatMessageHistory
@@ -7,10 +7,10 @@ from langchain_core.runnables.history import RunnableWithMessageHistory
 
 def chat():
 
-    st.markdown("<h1 style='text-align: center; color: white; margin-top: -20px'>Amazon PayBot</h1>", unsafe_allow_html=True)
+    st.markdown("<h1 style='text-align: center; color: white; margin-top: -20px'>Ask Walmart Bot/h1>", unsafe_allow_html=True)
 
     with st.chat_message("assistant"):
-        st.markdown(f"Hello {name}, I'm Amipay. Please feel free to ask any questions you have regarding payments.")
+        st.markdown(f"Hello Rishav, I'm here to assist you. Please feel free to ask any questions.")
 
     # Initialize chat history
     if "messages" not in st.session_state:

@@ -11,7 +11,7 @@ from langchain.agents import AgentExecutor
 from langchain import PromptTemplate
 from env import *
 from user_profile import *
-from tools import tool
+from tools_user import tool
 from langchain_community.chat_message_histories import ChatMessageHistory
 from langchain_core.chat_history import BaseChatMessageHistory
 from langchain_core.runnables.history import RunnableWithMessageHistory
@@ -40,56 +40,42 @@ agent_with_chat_history = RunnableWithMessageHistory(
     history_messages_key="chat_history",
 )
 
-async def async_agent_call(user_needs, user_attributes, user_type, question):
+async def async_agent_call(question):
     def create_prompt_template():
         template = """
-        As an Amazon customer service agent, your primary responsibility is to resolve all payment-related issues for customers.
+        You are an AI-powered customer care agent for a ecommerce gaint Walmart. Your goal is to assist customers with their inquiries, resolve their issues, and provide accurate and helpful information. 
 
-        **Instructions**:
-        - Activate the 'payment_query_search' tool to fetch accurate and relevant information for any payment-related query.
-        - Use the 'Amazon_policy' tool to answer questions about Amazon policies.
-        - Use 'Amazon-Pay-Services-Faqs' tool for all the questions related to amazon pay services.
-        - Use the tool 'Amazon-Pay-Services' for the queries related to Amazon Pay provided services.
-        - Use 'Amazon-AWS-Billing-FAQs' tool for the queries related to billings and payments in Amazon web services (AWS).
-        - For order confirmations, request the transaction ID and use the 'order_confirmation' tool.
-        - If the transaction ID is not found respond as order is not yet confirmed and give assurance to the customer.
-        - For Amazon Pay related queries use the tool 'Amazon-Pay-FAQs'.
-        - For queries related to financial data, use the 'financial_management' tool.
-        - Utilize the 'Customer-pain-point' tool to gauge the seriousness and emotions of the customer and respond accordingly.
-        - Utilize the 'Prime-Members' tool to answer the questions about Amazon Prime Membership , queries and subscriptions.
-
-        **Prompt Structure**:
+        **Instructions**
+        1. Use the 'product-details' tool to answer any question asked related to product details.
+        
+        **Prompt Structure**
         ```
         Question: {question}
-        Note: Use the user profile to understand the user. Here is the profile: {profile}. Focus on solutions and recommendations based on the user's needs: {needs} and use tool "Amazon-Pay-Services".
         ```
-        **Response Guidelines**:
-        - Tailor responses based on the user's profile.
-        - Provide clear, concise, and helpful information.
-        - Structure responses with bullet points for clarity and ease of reading.
-        - Keep conversations brief and to the point.
-        - Format text with clear spacing to ensure readability.
-        - Highlight important informations and requirements.
-        - Do not mention user types or tools used in the response.
+        
+        **Response Guidelines**
+        Your responses should be:
+        1. **Polite and Professional**: Always use a courteous and empathetic tone, even when the customer is frustrated.
+        2. **Concise and Clear**: Provide clear, direct answers. Avoid jargon and keep explanations simple.
+        3. **Solution-Oriented**: Focus on resolving the customer's issue or guiding them towards a solution. If you need more information, ask specific and relevant follow-up questions.
+        4. **Positive and Reassuring**: Always aim to make the customer feel heard and valued. Offer reassurances where appropriate.
+        5. **Knowledgeable**: Use the information available to provide the best possible answer. If you do not know the answer, suggest a next step or offer to connect them with a human representative.
+        6. **Adaptive**: Adjust your responses based on the customer's tone and the nature of their inquiry. Be more detailed for complex issues and brief for simple questions.
+        7. **Compliant with Company Policies**: Follow the company’s policies and procedures in your responses. Never provide information that contradicts company guidelines.
 
-        **Important** : Remember to exclude any tool invocation commands from the response text. Focus solely on providing a helpful and informative reply to the user.
+        When responding, always consider the customer’s perspective and aim to resolve their concern as efficiently as possible. Your main goal is to enhance customer satisfaction and build trust with the customer.
+
         """
         return PromptTemplate.from_template(template=template)
 
-    def format_prompt(prompt_template, question, users, needs, types):
-        users_str = "\n".join(users)
-        needs_str = "\n".join(needs)
-        types_str = "\n".join(types)
+    def format_prompt(prompt_template, question):
         return prompt_template.format(
             question=question,
-            profile = users_str,
-            user_type=types_str,
-            needs=needs_str
         )
 
     # Prepare the prompt
     prompt_template = create_prompt_template()
-    formatted_prompt = format_prompt(prompt_template, question, user_attributes, user_needs, user_type)
+    formatted_prompt = format_prompt(prompt_template, question)
 
     # Asynchronously invoke the agent
     response = await asyncio.to_thread(agent_with_chat_history.invoke, {"input": formatted_prompt}, {"configurable": {"session_id": "<foo>"}})

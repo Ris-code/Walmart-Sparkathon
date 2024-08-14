@@ -11,7 +11,7 @@ from langchain.agents import AgentExecutor
 from langchain import PromptTemplate
 from env import *
 from user_profile import *
-from tools import tool
+from tools_user import tool
 from langchain_community.chat_message_histories import ChatMessageHistory
 from langchain_core.chat_history import BaseChatMessageHistory
 from langchain_core.runnables.history import RunnableWithMessageHistory
@@ -40,56 +40,55 @@ agent_with_chat_history = RunnableWithMessageHistory(
     history_messages_key="chat_history",
 )
 
-async def async_agent_call(user_needs, user_attributes, user_type, question):
+async def async_agent_call(question):
     def create_prompt_template():
         template = """
-        As an Amazon customer service agent, your primary responsibility is to resolve all payment-related issues for customers.
+        You are an AI assistant designed to help Walmart’s admin team identify and address key operational issues. Your task is to guide the admin on potential areas where they might receive questions or need to take action. Focus on the following topics:
 
-        **Instructions**:
-        - Activate the 'payment_query_search' tool to fetch accurate and relevant information for any payment-related query.
-        - Use the 'Amazon_policy' tool to answer questions about Amazon policies.
-        - Use 'Amazon-Pay-Services-Faqs' tool for all the questions related to amazon pay services.
-        - Use the tool 'Amazon-Pay-Services' for the queries related to Amazon Pay provided services.
-        - Use 'Amazon-AWS-Billing-FAQs' tool for the queries related to billings and payments in Amazon web services (AWS).
-        - For order confirmations, request the transaction ID and use the 'order_confirmation' tool.
-        - If the transaction ID is not found respond as order is not yet confirmed and give assurance to the customer.
-        - For Amazon Pay related queries use the tool 'Amazon-Pay-FAQs'.
-        - For queries related to financial data, use the 'financial_management' tool.
-        - Utilize the 'Customer-pain-point' tool to gauge the seriousness and emotions of the customer and respond accordingly.
-        - Utilize the 'Prime-Members' tool to answer the questions about Amazon Prime Membership , queries and subscriptions.
+        1. **Inventory Management**: 
+        - How much of each product should Walmart keep on the shelves to avoid stockouts or overstock situations?
+        - What methods can be used to track and forecast inventory needs?
+        - How can Walmart ensure optimal stock levels for popular items while minimizing excess inventory for less popular products?
 
-        **Prompt Structure**:
+        2. **Supplier Selection and Management**:
+        - How can Walmart identify and choose the best suppliers that offer good deals and high-quality products?
+        - What criteria should be used to evaluate suppliers?
+        - How can Walmart maintain strong relationships with suppliers to ensure consistent product quality and availability?
+
+        3. **Pricing Strategy**:
+        - How can Walmart set competitive and fair prices for its products?
+        - What factors should be considered when pricing products, such as customer demand, competitor pricing, and product costs?
+        - How can Walmart adjust prices in response to market changes to maintain profitability and customer satisfaction?
+
+        4. **Predictive Analytics and Trend Forecasting**:
+        - How can Walmart analyze shopping patterns and trends to predict future customer demands?
+        - What tools or methods can be used to forecast trends and ensure that the right products are available at the right time?
+        - How can Walmart leverage data to anticipate shifts in customer preferences and adjust inventory and pricing strategies accordingly?
+
+        **Instructions**
+        1. Use the 'product-details' tool to answer any question asked related to product details.
+        
+        **Prompt Structure**
         ```
         Question: {question}
-        Note: Use the user profile to understand the user. Here is the profile: {profile}. Focus on solutions and recommendations based on the user's needs: {needs} and use tool "Amazon-Pay-Services".
         ```
-        **Response Guidelines**:
-        - Tailor responses based on the user's profile.
-        - Provide clear, concise, and helpful information.
-        - Structure responses with bullet points for clarity and ease of reading.
-        - Keep conversations brief and to the point.
-        - Format text with clear spacing to ensure readability.
-        - Highlight important informations and requirements.
-        - Do not mention user types or tools used in the response.
-
-        **Important** : Remember to exclude any tool invocation commands from the response text. Focus solely on providing a helpful and informative reply to the user.
+        
+        **Response Guidelines**
+        When assisting the admin, always ensure that your guidance is:
+        - **Comprehensive and Actionable**: Provide clear steps or considerations that the admin team can implement.
+        - **Strategically Aligned**: Ensure that all advice aligns with Walmart's business goals of efficiency, customer satisfaction, and competitiveness.
+        - **Data-Driven**: Where possible, suggest the use of data and analytics to inform decisions.
         """
         return PromptTemplate.from_template(template=template)
 
-    def format_prompt(prompt_template, question, users, needs, types):
-        users_str = "\n".join(users)
-        needs_str = "\n".join(needs)
-        types_str = "\n".join(types)
+    def format_prompt(prompt_template, question):
         return prompt_template.format(
             question=question,
-            profile = users_str,
-            user_type=types_str,
-            needs=needs_str
         )
 
     # Prepare the prompt
     prompt_template = create_prompt_template()
-    formatted_prompt = format_prompt(prompt_template, question, user_attributes, user_needs, user_type)
+    formatted_prompt = format_prompt(prompt_template, question)
 
     # Asynchronously invoke the agent
     response = await asyncio.to_thread(agent_with_chat_history.invoke, {"input": formatted_prompt}, {"configurable": {"session_id": "<foo>"}})

@@ -8,6 +8,7 @@ import env
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), 'ChatBot')))
 image = os.path.join(os.path.dirname(__file__), 'Images')
 
+import bot_user
 
 def img_to_base64(image_path):
     with open(image_path, "rb") as img_file:
@@ -153,7 +154,9 @@ def app():
         )
 
         if(option=="Customer"):
-            st.write("Cus-Chat")
+            # st.write("Cus-Chat")
+            bot_user.chat()
+
         if(option=="Admin"):
             st.write("Admin")
 
