@@ -1,6 +1,5 @@
 import streamlit as st
 from agent_admin import *
-from user_profile import *
 from langchain_community.chat_message_histories import ChatMessageHistory
 from langchain_core.chat_history import BaseChatMessageHistory
 from langchain_core.runnables.history import RunnableWithMessageHistory

@@ -20,7 +20,6 @@ from langchain.agents import create_tool_calling_agent
 from langchain.agents import AgentExecutor
 from langchain import PromptTemplate
 from env import *
-from user_profile import *
 import pandas as pd
 from langchain_community.utilities import SQLDatabase
 from sqlalchemy import create_engine

@@ -20,7 +20,6 @@ from langchain.agents import create_tool_calling_agent
 from langchain.agents import AgentExecutor
 from langchain import PromptTemplate
 from env import *
-from user_profile import *
 import pandas as pd
 from langchain_community.utilities import SQLDatabase
 from sqlalchemy import create_engine
@@ -49,5 +48,9 @@ retrieve_tool_1 = retrieve_tool("product-index",
                                 topic="product-details", 
                                 description="Provides all information related to a particular product asked by the user",
                                 )
+retrieve_tool_2 = retrieve_tool("policy", 
+                                topic="walmart-frequently-asked-questions", 
+                                description="Provides answers to all the questions related to policies, terms and conditions, return and refund policies, shopping with walmart, walmart+ and walmart services ",
+                                )
 
-tool = [retrieve_tool_1]
+tool = [retrieve_tool_1, retrieve_tool_2]
