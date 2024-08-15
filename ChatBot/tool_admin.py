@@ -44,9 +44,9 @@ def retrieve_tool(index, topic, description, pinecone_key=os.environ.get("PINECO
     return retriever_tool
 
 ## Tool 1
-retrieve_tool_1 = retrieve_tool("query-category-new", 
-                                topic="payment_query_search", 
-                                description="Search for information related to payment queries. For any questions about Payment and payment methods, you must use this tool!",
+retrieve_tool_1 = retrieve_tool("adminsales", 
+                                topic= "demand-requirements", 
+                                description="Search for information related to demand requiremtn for city/state!",
                                 )
 
 tool = [retrieve_tool_1]
