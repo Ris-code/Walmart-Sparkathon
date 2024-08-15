@@ -118,7 +118,7 @@ def app():
     with st.sidebar:
         main_choice = option_menu(
             menu_title="",
-            options=["Home", "Dashboard", "About", "PayBot"],
+            options=["Home", "Dashboard", "About", "Service Bot"],
             icons=["house", "file-bar-graph", "info-circle", "robot"],
             menu_icon="cast",
             default_index=0,
@@ -158,7 +158,9 @@ def app():
             chat()
 
         if(option=="Admin"):
-            st.write("Admin")
+            # st.write("Admin")
+            from bot_admin import chat_admin
+            chat_admin()
 
 def main():
     st.set_page_config(
