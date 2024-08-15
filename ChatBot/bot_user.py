@@ -11,8 +11,42 @@ def chat():
     print(1)
     st.markdown("<h1 style='text-align: center; color: white; margin-top: -20px'>Ask Walmart Bot</h1>", unsafe_allow_html=True)
 
+    button_dic = {"pay_query": "Payment queries", 
+                "refund_return": "Refund and Returns", 
+                "product_query": "Any product query",
+                "walmart": "Walmart services"
+                }
+    
+
     with st.chat_message("assistant"):
         st.markdown(f"Hello Rishav, I'm here to assist you. Please feel free to ask any questions.")
+
+        st.markdown("""
+            <style>
+            .stButton>button {
+                background-color: white;
+                color: black;
+                border-radius: 20px;
+                font-weight: 200;
+                font-size: 12px;
+                text-align: center;
+                cursor: pointer;
+            }
+            .stButton>button :hover{
+                border-radius: 20px;
+                padding: 2px;
+                color: black;    
+            }
+            .stTextInput{
+                background-color: black;        
+            }
+            </style>
+        """, unsafe_allow_html=True)
+
+        pay_query = st.button("Payment queries")
+        refund_return = st.button("Refund and Returns")
+        product_query = st.button("Any product query")
+        walmart = st.button("Walmart services")
 
     # Initialize chat history
     if "messages" not in st.session_state:
@@ -23,11 +57,8 @@ def chat():
         with st.chat_message(message["role"]):
             st.markdown(message["content"])
 
-    # React to user input
-    if prompt := st.chat_input("How can I help you ?"):
-        print("in")
-        # Display user message in chat message container
-        st.chat_message("user").markdown(prompt)
+    def output(prompt):
+        # st.chat_message("user").markdown(prompt)
 
         # Add user message to chat history
         st.session_state.messages.append({"role": "user", "content": prompt})
@@ -67,3 +98,28 @@ def chat():
             st.markdown(response)
 
         st.session_state.messages.append({"role": "assistant", "content": response})
+    # React to user input
+    if prompt := st.chat_input("How can I help You"):
+        # Display user message in chat message container
+        st.chat_message("user").markdown(prompt)
+        output(prompt)
+        
+    if pay_query:
+        prompts = f"Have queries regarding {button_dic['pay_query']} of Walmart"
+        st.chat_message("user").markdown(prompts)
+        output(prompts)
+
+    if refund_return:
+        prompts = f"Have queries regarding {button_dic['refund_return']} of Walmart"
+        st.chat_message("user").markdown(prompts)
+        output(prompts)
+
+    if product_query:
+        prompts = f"Have queries regarding {button_dic['product_query']} of Walmart"
+        st.chat_message("user").markdown(prompts)
+        output(prompts)
+
+    if walmart:
+        prompts = f"Have queries regarding {button_dic['walmart']} of Walmart"
+        st.chat_message("user").markdown(prompts)
+        output(prompts)
