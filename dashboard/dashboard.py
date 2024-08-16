@@ -41,7 +41,7 @@ df = df[(df["date_"] >= date1) & (df["date_"] <= date2)].copy()
 st.sidebar.header("Choose your filter: ")
 
 # Create for city_name only
-city = st.sidebar.multiselect("Pick the city_name", df["city_name"].unique())
+city = st.sidebar.multiselect("Pick the city", df["city_name"].unique())
 
 # Filter the data based on city_name
 if not city:
@@ -52,7 +52,7 @@ else:
 # category_df = filtered_df.groupby(by = ["Category"], as_index = False)["Sales"].sum()
 
 with col1:
-    st.subheader("City-wise Sales procured_quantity")
+    st.subheader("City-wise Sales procured quantity")
     fig = px.pie(filtered_df, values="procured_quantity", names="city_name", hole=0.5)
     fig.update_traces(text=filtered_df["city_name"], textposition="outside")
     st.plotly_chart(fig, use_container_width=True)
@@ -139,6 +139,8 @@ st.write(f"**Average Selling Price:** {avg_selling_price:.2f}")
 
 # Additional analysis: how discount impacts sales volume
 discount_sales_volume = filtered_df.groupby("total_discount_amount").agg({"procured_quantity": "sum"}).reset_index()
+
+# Create line plot with specified y-axis range
 fig_discount_sales = px.line(
     discount_sales_volume,
     x="total_discount_amount",
@@ -147,14 +149,20 @@ fig_discount_sales = px.line(
     labels={"total_discount_amount": "Total Discount Amount", "procured_quantity": "Procured Quantity"},
     template="plotly_white"
 )
-st.plotly_chart(fig_discount_sales, use_container_width=True, markers = True)
+
+# Set the y-axis range with a maximum value of 200
+fig_discount_sales.update_yaxes(range=[0, 75])
+
+st.plotly_chart(fig_discount_sales, use_container_width=True)
 
 
 # Calculate profitability
-filtered_df["profitability"] = filtered_df["unit_selling_price"] - filtered_df["total_weighted_landing_price"]
+filtered_df["profitability"] = (filtered_df["procured_quantity"] * (filtered_df["unit_selling_price"] - filtered_df["total_discount_amount"]) ) - filtered_df["total_weighted_landing_price"]
 
 # Aggregate profitability by product_id
 product_profitability = filtered_df.groupby("product_id").agg({"profitability": "sum"}).reset_index()
+
+# Plot profitability by product
 fig_product_profitability = px.bar(
     product_profitability,
     x="product_id",
@@ -167,6 +175,8 @@ st.plotly_chart(fig_product_profitability, use_container_width=True)
 
 # Aggregate profitability by city_name
 city_profitability = filtered_df.groupby("city_name").agg({"profitability": "sum"}).reset_index()
+
+# Plot profitability by city
 fig_city_profitability = px.bar(
     city_profitability,
     x="city_name",
@@ -175,17 +185,19 @@ fig_city_profitability = px.bar(
     labels={"profitability": "Total Profitability"},
     template="plotly_white"
 )
-st.plotly_chart(fig_city_profitability, use_container_width=True, markers = True)
+st.plotly_chart(fig_city_profitability, use_container_width=True)
 
 # Analyze how discounts impact profitability
 discount_profitability = filtered_df.groupby("total_discount_amount").agg({"profitability": "mean"}).reset_index()
+
+# Plot the impact of discount on profitability
 fig_discount_profitability = px.line(
     discount_profitability,
     x="total_discount_amount",
     y="profitability",
     title="Impact of Discount Amount on Profitability",
     labels={"total_discount_amount": "Total Discount Amount", "profitability": "Average Profitability"},
-    template="plotly_white"
+    template="plotly_white",
+    markers=True
 )
-st.plotly_chart(fig_discount_profitability, use_container_width=True, markers = True) 
-
+st.plotly_chart(fig_discount_profitability, use_container_width=True)
