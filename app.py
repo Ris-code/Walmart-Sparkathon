@@ -5,6 +5,7 @@ from streamlit_option_menu import option_menu
 import base64
 import env
 import json
+import pandas as pd
 # # Add directories to sys.path if needed
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), 'ChatBot')))
 image = os.path.join(os.path.dirname(__file__), 'Images')
@@ -106,8 +107,6 @@ def set_custom_css():
     st.markdown(custom_css, unsafe_allow_html=True)
 
 def display_home():
-    # Convert cursor to list to get the length and iterate over items
-    
     # Specify the path to your JSON file
     json_file_path = 'productDict.json'
 
@@ -116,7 +115,28 @@ def display_home():
         data = json.load(file)
 
     # Now `data` is a Python dictionary
-    print(data)
+    # print(data)
+
+    df = pd.read_csv("recommendations1.csv")
+    df_cust = pd.read_csv("customerRecommendationData.csv")
+
+    product = {}
+    index = 0
+    for _, row in df.head(6).iterrows():
+        prod_id = data[str(int(row["productID"]))]
+        df_new = df_cust[df_cust["product_id"]==prod_id]
+        df_new.reset_index(inplace=True)
+        product[index] = {
+            "name": df_new["product_name"][0],
+            "price": df_new["actual_price"][0],
+            "rating": df_new["rating"][0],
+            "image": df_new["img_link"][0],
+            "category": df_new["category"][0],
+        }
+        index+=1
+    
+    # print(product)
+    len_items = len(product)
 
     st.markdown(f"<h1 style='text-align: left; color: white; margin-top: -20px'>Top Recommended</h1>", unsafe_allow_html=True)
     
@@ -130,9 +150,10 @@ def display_home():
     for row in rows:
         for col in row:
             if item_index < len_items:
-                item = items[item_index]
+                item = product[item_index]
+                print(item)
                 with col:
-                    with st.container(border=2):
+                    with st.container():
                         st.markdown(f'<img src="{item["image"]}" class="custom-image">', unsafe_allow_html=True)
                         st.markdown(f'<div class="item-name">{item["name"]}</div>', unsafe_allow_html=True)
                         st.markdown(f'<div class="price">{item["price"]}</div>', unsafe_allow_html=True)
