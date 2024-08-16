@@ -19,6 +19,8 @@ streamlit-option-menu = "*"
 pymongo = "*"
 pandas = "*"
 plotly = "*"
+folium = "*"
+streamlit-folium = "*"
 
 [dev-packages]
 
