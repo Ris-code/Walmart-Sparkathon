@@ -4,6 +4,7 @@ import os
 from streamlit_option_menu import option_menu
 import base64
 import env
+import json
 # # Add directories to sys.path if needed
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), 'ChatBot')))
 image = os.path.join(os.path.dirname(__file__), 'Images')
@@ -104,6 +105,43 @@ def set_custom_css():
     """
     st.markdown(custom_css, unsafe_allow_html=True)
 
+def display_home():
+    # Convert cursor to list to get the length and iterate over items
+    
+    # Specify the path to your JSON file
+    json_file_path = 'productDict.json'
+
+    # Open and load the JSON file
+    with open(json_file_path, 'r') as file:
+        data = json.load(file)
+
+    # Now `data` is a Python dictionary
+    print(data)
+
+    st.markdown(f"<h1 style='text-align: left; color: white; margin-top: -20px'>Top Recommended</h1>", unsafe_allow_html=True)
+    
+    # Calculate the number of rows needed
+    rows = [st.columns(3) for _ in range(len_items // 3)]
+    if len_items % 3:
+        rows.append(st.columns(len_items % 3))
+
+    # Display items in the calculated rows
+    item_index = 0
+    for row in rows:
+        for col in row:
+            if item_index < len_items:
+                item = items[item_index]
+                with col:
+                    with st.container(border=2):
+                        st.markdown(f'<img src="{item["image"]}" class="custom-image">', unsafe_allow_html=True)
+                        st.markdown(f'<div class="item-name">{item["name"]}</div>', unsafe_allow_html=True)
+                        st.markdown(f'<div class="price">{item["price"]}</div>', unsafe_allow_html=True)
+                        if st.button("Buy Now", key=f"buy_now_{item_index}", use_container_width=True):
+                            # if 'item' not in st.session_state:
+                            st.session_state.item = item
+                            st.session_state.current_page = "Recommendation"
+                item_index += 1   
+
 def app():
     set_custom_css()
     
@@ -138,7 +176,7 @@ def app():
     
 
     if main_choice == "Home":
-        st.write("Hello")
+        display_home()
 
     elif main_choice == "Dashboard":
         st.write("Dash")
